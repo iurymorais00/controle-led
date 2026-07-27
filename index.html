@@ -9,7 +9,7 @@
             font-family: Arial, sans-serif; 
             text-align: center; 
             margin-top: 50px; 
-            background-color: #17177e;
+            background-color: #cad5e6;
         }
         .container {
             background: white;
@@ -48,7 +48,7 @@
 </head>
 <body>
 
-    <h1>Painel IoT</h1>
+    <h1>Painel Controle</h1>
 
     <!-- TELA DE LOGIN -->
     <div id="login-screen" class="container">
@@ -61,7 +61,12 @@
 
     <!-- TELA PRINCIPAL DE CONTROLE (ESCONDIDA INICIALMENTE) -->
     <div id="app-screen" class="container hidden">
-        <h2>Controle do Relé via ESP32</h2>
+        <h2>Controle do LED via ESP32</h2>
+        <!-- TEXTO DE STATUS DO LED -->
+        <p style="font-size: 18px; font-weight: bold; margin: 20px 0;">
+            Status: <span id="status-led" style="color: gray;">Carregando...</span>
+        </p>
+
         <button onclick="ligarRele()">LIGAR</button>
         <button class="btn-desligar" onclick="desligarRele()">DESLIGAR</button>
         <br><br><br>
@@ -84,6 +89,20 @@
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.database();
+
+        // REGRA DE LEITURA EM TEMPO REAL
+        db.ref("/controle/led_embutido").on("value", (snapshot) => {
+            const valor = snapshot.val();
+            const statusElement = document.getElementById("status-led");
+
+            if (valor === 1) {
+                statusElement.innerText = "LED LIGADO";
+                statusElement.style.color = "#28a745"; // Verde
+            } else {
+                statusElement.innerText = "LED DESLIGADO";
+                statusElement.style.color = "#dc3545"; // Vermelho
+            }
+        });
 
         // 3. FUNÇÃO DE LOGIN
         function fazerLogin() {
